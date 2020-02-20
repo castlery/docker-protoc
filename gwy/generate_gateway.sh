@@ -104,27 +104,18 @@ PROTO_DIR=$(dirname $FILE)
 OUT_PATH=$OUT_DIR/src/gen/pb-go
 entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_PATH $INCLUDES
 
-GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
-GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
+export SERVICE=${SERVICE}
+export GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
+export GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
 
 # Find the Swagger file.
-PROTO_FILE=$(basename $FILE)
-SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
+export OUT_PATH=${OUT_PATH}
+export SWAGGER_FILE_NAME=apidocs.swagger.json
 
 # Copy and update the templates.
-sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
-  /templates/config.yaml.tmpl \
-  > $OUT_DIR/config.yaml
-
-sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
-    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
-  /templates/Dockerfile.tmpl \
-  > $OUT_DIR/Dockerfile
+gomplate -f /templates/config.yaml.tmpl -o $OUT_DIR/config.yaml
+gomplate -f /templates/Dockerfile.tmpl -o $OUT_DIR/Dockerfile
 
 MAIN_DIR=$OUT_DIR/src/pkg/main
 mkdir -p $MAIN_DIR
-sed -e "s/\${SERVICE}/${SERVICE}/g" \
-    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
-  /templates/main.go.tmpl \
-  > $MAIN_DIR/main.go
-
+gomplate -f /templates/main.go.tmpl -o $MAIN_DIR/main.go

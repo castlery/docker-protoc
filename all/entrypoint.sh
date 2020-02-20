@@ -372,5 +372,5 @@ if [ $GEN_GATEWAY = true ]; then
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     protoc $PROTO_INCLUDE  \
-		--swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		--swagger_out=allow_merge=true,logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
 fi
