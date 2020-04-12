@@ -131,8 +131,10 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 # gen-grpc-gateway
 FROM protoc-all AS gen-grpc-gateway
 
-COPY gwy/templates /templates
-COPY gwy/generate_gateway.sh /usr/local/bin
+RUN apk add --no-cache gomplate
+
+COPY gwy-v2/templates /templates
+COPY gwy-v2/generate_gateway.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/generate_gateway.sh
 
 WORKDIR /defs
