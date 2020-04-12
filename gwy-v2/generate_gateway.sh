@@ -114,12 +114,13 @@ PROTO_DIR=$(dirname $FILE)
 OUT_PATH=$OUT_DIR/src/gen/pb-go
 entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_PATH $INCLUDES
 
-GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
-GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
+export SERVICE=${SERVICE}
+export GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
+export GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
 
 # Find the Swagger file.
-PROTO_FILE=$(basename $FILE)
-SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
+export OUT_PATH=${OUT_PATH}
+export SWAGGER_FILE_NAME=apidocs.swagger.json
 
 # Copy and update the templates.
 renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
@@ -127,5 +128,5 @@ renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templa
 
 MAIN_DIR=$OUT_DIR/src/pkg/main
 mkdir -p $MAIN_DIR
-renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} /templates/main.go.tmpl > $MAIN_DIR/main.go
-
+# renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} /templates/main.go.tmpl > $MAIN_DIR/main.go
+gomplate -f /templates/main.go.tmpl -o $MAIN_DIR/main.go
