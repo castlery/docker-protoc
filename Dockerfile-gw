@@ -1,0 +1,14 @@
+# gen-grpc-gateway
+FROM namely/protoc-all:1.28_2 AS gen-grpc-gateway
+
+RUN apk add --no-cache gomplate
+
+COPY gwy/templates /templates
+COPY gwy/generate_gateway.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/generate_gateway.sh
+
+ADD all/entrypoint.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+WORKDIR /defs
+ENTRYPOINT [ "generate_gateway.sh" ]
