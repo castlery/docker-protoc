@@ -374,6 +374,10 @@ plugins=grpc+embedded\
         ;;
 esac
 
+if [[ $GEN_VALIDATOR == true && $GEN_LANG == "java" ]]; then
+    GEN_STRING="$GEN_STRING --validate_out=lang=java:$OUT_DIR"
+fi
+
 if [[ $GO_VALIDATOR == true && $GEN_LANG == "go" ]]; then
     GEN_STRING="$GEN_STRING --govalidators_out=$OUT_DIR"
 fi
